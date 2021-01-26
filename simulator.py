@@ -28,6 +28,10 @@ class BASISR:
         self.n_cols = int((self.base) / self.trX)
         self.pins = BASISR.init_pins(self)
 
+    ####################################################################################################################
+    #                                            INITIALIZATION
+    ####################################################################################################################
+
     def create_base(self, rgb_color):
         points = [[-self.small_base / 2, 0, 0], [self.small_base / 2, 0, 0],
                   [self.base / 2, 0, -self.height], [-self.base / 2, 0, -self.height]]
@@ -97,16 +101,6 @@ class BASISR:
             z = 0
 
         return np.array([x, y, z])
-
-    def update_point(self, x, z, height):
-        i = int(self.n_cols / 2) + int(x / self.trX) if self.n_cols % 2 == 0 else int(
-            self.n_cols / 2) + 1 + int(x / self.trX)
-        j = self.n_lines + int(z / self.trZ)
-
-        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != -1 and self.pins[j][
-            i].height < self.pinInitHeight + self.diffH:
-            self.pins[j][i].height = height
-            self.pins[j][i].color = [0, 0, 1]
 
     ####################################################################################################################
     #                                            LABELS
@@ -257,6 +251,26 @@ class BASISR:
                 centerX - int(self.cell / 3) - i].is_active = True
             self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
                 centerX - int(self.cell / 3) - i].is_centeroid = True
+
+    ####################################################################################################################
+    #                                            UPDATE
+    ####################################################################################################################
+
+    def update_point(self, x, z, height, color=[0, 0, 1]):
+        i = int(self.n_cols / 2) + int(x / self.trX) if self.n_cols % 2 == 0 else int(
+            self.n_cols / 2) + 1 + int(x / self.trX)
+        j = self.n_lines + int(z / self.trZ)
+
+        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != -1 and self.pins[j][
+            i].height < self.pinInitHeight + self.diffH:
+            self.pins[j][i].height = height
+            self.pins[j][i].color = color
+
+    def update_pcd(self, pcd, height=None):
+        if height is None:
+            height = self.pinInitHeight + self.diffH
+        for p in pcd:
+            self.update_point(p[0], p[2], height)
 
 
 class Pin:
