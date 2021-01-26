@@ -108,6 +108,156 @@ class BASISR:
             self.pins[j][i].height = height
             self.pins[j][i].color = [0, 0, 1]
 
+    ####################################################################################################################
+    #                                            LABELS
+    ####################################################################################################################
+    def chair(self, centerX, centerZ, height):
+        for i in range(centerX - int(self.cell / 2), centerX + int(self.cell / 2) + 1):
+            self.pins[centerZ][i].height = height
+            self.pins[centerZ][i].is_active = True
+            self.pins[centerZ][i].is_centeroid = True
+
+        for i in range(centerZ - int(self.cell / 2), centerZ + int(self.cell / 2) + 1):
+            self.pins[i][centerX - int(self.cell / 2)].height = height
+            self.pins[i][centerX - int(self.cell / 2)].is_active = True
+            self.pins[i][centerX - int(self.cell / 2)].is_centeroid = True
+
+        for i in range(centerZ, centerZ + int(self.cell / 2) + 1):
+            self.pins[i][centerX + int(self.cell / 2)].height = height
+            self.pins[i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[i][centerX + int(self.cell / 2)].is_centeroid = True
+
+    def table(self, centerX, centerZ, height):
+        for i in range(centerX - int(self.cell / 2), centerX + int(self.cell / 2) + 1):
+            self.pins[centerZ][i].height = height
+            self.pins[centerZ][i].is_active = True
+            self.pins[centerZ][i].is_centeroid = True
+
+        for i in range(centerZ, centerZ + int(self.cell / 2) + 1):
+            self.pins[i][centerX + int(self.cell / 2)].height = height
+            self.pins[i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.pins[i][centerX - int(self.cell / 2)].height = height
+            self.pins[i][centerX - int(self.cell / 2)].is_active = True
+            self.pins[i][centerX - int(self.cell / 2)].is_centeroid = True
+
+    def dresser(self, centerX, centerZ, height):
+        for i in range(self.cell):
+            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # haut
+            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
+            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # bas
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].height = height  # cote gauche
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droite
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX].height = height  # ligne central
+            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_centeroid = True
+
+    def window(self, centerX, centerZ, height):
+        for i in range(self.cell):
+            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # haut
+            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
+            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # bas
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].height = height  # cote gauche
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droite
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX].height = height  # ligne central: vetrical
+            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_centeroid = True
+            self.pins[centerZ][centerX - int(self.cell / 2) + i].height = height  # bas
+            self.pins[centerZ][centerX - int(self.cell / 2) + i].is_active = True
+            self.pins[centerZ][centerX - int(self.cell / 2) + i].is_centeroid = True
+
+    def door(self, centerX, centerZ, heigh):
+        for i in range(centerX - int(self.cell / 3), centerX + int(self.cell / 3) + 1):
+            self.pins[centerZ - int(self.cell / 2)][i].height = heigh
+            self.pins[centerZ - int(self.cell / 2)][i].is_active = True
+            self.pins[centerZ - int(self.cell / 2)][i].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2)][i].height = heigh
+            self.pins[centerZ + int(self.cell / 2)][i].is_active = True
+            self.pins[centerZ + int(self.cell / 2)][i].is_centeroid = True
+
+        for i in range(self.cell):
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 3)].height = heigh
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 3)].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 3)].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 3)].height = heigh
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 3)].is_active = True
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 3)].is_centeroid = True
+
+    def upstairs(self, centerX, centerZ, height):
+        for i in range(int(self.cell / 2)):
+            self.pins[centerZ][centerX + i].height = height
+            self.pins[centerZ][centerX + i].is_active = True
+            self.pins[centerZ][centerX + i].is_centeroid = True
+            self.pins[centerZ + i][centerX].height = height
+            self.pins[centerZ + i][centerX].is_active = True
+            self.pins[centerZ + i][centerX].is_centeroid = True
+            self.pins[centerZ - i][centerX + int(self.cell / 2)].height = height
+            self.pins[centerZ - i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[centerZ - i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - i].height = height
+            self.pins[centerZ + int(self.cell / 2)][centerX - i].is_active = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - i].is_centeroid = True
+
+    def downstairs(self, centerX, centerZ, height):
+        for i in range(int(self.cell / 2)):
+            self.pins[centerZ][centerX + i].height = height
+            self.pins[centerZ][centerX + i].is_active = True
+            self.pins[centerZ][centerX + i].is_centeroid = True
+            self.pins[centerZ - i][centerX].height = height
+            self.pins[centerZ - i][centerX].is_active = True
+            self.pins[centerZ - i][centerX].is_centeroid = True
+            self.pins[centerZ + i][centerX + int(self.cell / 2)].height = height
+            self.pins[centerZ + i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[centerZ + i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ - int(self.cell / 2)][centerX - i].height = height
+            self.pins[centerZ - int(self.cell / 2)][centerX - i].is_active = True
+            self.pins[centerZ - int(self.cell / 2)][centerX - i].is_centeroid = True
+
+    def bathtub5(self, centerX, centerZ, height):
+        for i in range(self.cell):
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
+            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
+
+        for i in range(int(self.cell * 2 / 3)):
+            self.pins[centerZ + int(self.cell / 2) - i][centerX - int(self.cell / 2)].height = height
+            self.pins[centerZ + int(self.cell / 2) - i][centerX - int(self.cell / 2)].is_active = True
+            self.pins[centerZ + int(self.cell / 2) - i][centerX - int(self.cell / 2)].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2) - i][centerX + int(self.cell / 2)].height = height
+            self.pins[centerZ + int(self.cell / 2) - i][centerX + int(self.cell / 2)].is_active = True
+            self.pins[centerZ + int(self.cell / 2) - i][centerX + int(self.cell / 2)].is_centeroid = True
+
+        for i in range(int(self.cell / 3)):
+            self.pins[centerZ][centerX - int(self.cell / 6) + i].height = height
+            self.pins[centerZ][centerX - int(self.cell / 6) + i].is_active = True
+            self.pins[centerZ][centerX - int(self.cell / 6) + i].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
+                centerX + int(self.cell / 3) + i].height = height
+            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
+                centerX + int(self.cell / 3) + i].is_active = True
+            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
+                centerX + int(self.cell / 3) + i].is_centeroid = True
+            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
+                centerX - int(self.cell / 3) - i].height = height
+            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
+                centerX - int(self.cell / 3) - i].is_active = True
+            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
+                centerX - int(self.cell / 3) - i].is_centeroid = True
+
 
 class Pin:
     def __init__(self, xyz, height, is_active=False, is_centeroid=False, color=None):
