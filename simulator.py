@@ -9,6 +9,7 @@ Desc:
 import numpy as np
 import open3d as o3d
 from math import cos, sin, pi, atan2, sqrt
+import preprocessing
 
 
 class BASISR:
@@ -31,7 +32,6 @@ class BASISR:
     ####################################################################################################################
     #                                            INITIALIZATION
     ####################################################################################################################
-
     def create_base(self, rgb_color):
         points = [[-self.small_base / 2, 0, 0], [self.small_base / 2, 0, 0],
                   [self.base / 2, 0, -self.height], [-self.base / 2, 0, -self.height]]
@@ -78,6 +78,20 @@ class BASISR:
                 else:
                     pins[j][i] = Pin([x, 0, z], self.pinInitHeight, is_active=False)
         return pins
+
+    def update_pinsClolor(self):
+        h, w = self.pins.shape[:2]
+        for i in range(w):
+            for j in range(h):
+                if self.pins[j][i].is_active:
+                    # compute height class to change colors:
+                    classe = (self.pins[j][i].height - self.pinInitHeight) / self.diffH
+                    if classe == 2 or classe == 1:
+                        self.pins[j][i].color = [0, 1, 0]
+                    elif classe == 3:
+                        self.pins[j][i].color = [1, 1, 0]
+                    elif classe == 4:
+                        self.pins[j][i].color = [1, 0, 0]
 
     @staticmethod
     def is_in(self, x, z):
@@ -146,7 +160,7 @@ class BASISR:
             self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].height = height  # cote gauche
             self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_active = True
             self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droite
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droit
             self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_active = True
             self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_centeroid = True
             self.pins[centerZ - int(self.cell / 2) + i][centerX].height = height  # ligne central
@@ -164,7 +178,7 @@ class BASISR:
             self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].height = height  # cote gauche
             self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_active = True
             self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droite
+            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droit
             self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_active = True
             self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_centeroid = True
             self.pins[centerZ - int(self.cell / 2) + i][centerX].height = height  # ligne central: vetrical
@@ -256,7 +270,7 @@ class BASISR:
     #                                            UPDATE
     ####################################################################################################################
 
-    def update_point(self, x, z, height, color=[0, 0, 1]):
+    def update_point(self, x, z, height, color=None):
         i = int(self.n_cols / 2) + int(x / self.trX) if self.n_cols % 2 == 0 else int(
             self.n_cols / 2) + 1 + int(x / self.trX)
         j = self.n_lines + int(z / self.trZ)
@@ -264,13 +278,51 @@ class BASISR:
         if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != -1 and self.pins[j][
             i].height < self.pinInitHeight + self.diffH:
             self.pins[j][i].height = height
-            self.pins[j][i].color = color
+            self.pins[j][i].color = [0, 0, 1] if color is None else color
 
     def update_pcd(self, pcd, height=None):
         if height is None:
             height = self.pinInitHeight + self.diffH
         for p in pcd:
             self.update_point(p[0], p[2], height)
+
+    def map_segments(self, segments):
+        for segment in segments:
+            self.map_segment(segment)
+
+    def map_segment(self, segment):
+        pcd = preprocessing.map_pcd(segment.pcd)
+        heightClass = self.pinInitHeight + self.diffH * (segment.height_class(1200, 1800) + 1)
+        if segment.classe is not None:
+            self.update_pcd(pcd)
+            centeroid = segment.centroid()
+            centeroid = preprocessing.map_point(centeroid)
+            self.update_centroid(centeroid[0], centeroid[2], heightClass, segment.classe)
+        else:
+            self.update_pcd(pcd, heightClass)
+
+    def update_centroid(self, x, z, heightClass, objectNature):
+        i = int(self.n_cols / 2) + int(x / self.trX) if self.n_cols % 2 == 0 else int(
+            self.n_cols / 2) + 1 + int(x / self.trX)
+        j = self.n_lines + int(z / self.trZ)
+        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != -1 and self.pins[j][
+            i].height < heightClass:
+            if objectNature == 'chair':
+                self.chair(i, j, heightClass)
+            elif objectNature == 'table':
+                self.table(i, j, heightClass)
+            elif objectNature == 'dresser':
+                self.dresser(i, j, heightClass)
+            elif objectNature == 'upstair':
+                self.upstairs(i, j, heightClass)
+            elif objectNature == 'downstair':
+                self.downstairs(i, j, heightClass)
+            elif objectNature == 'door':
+                self.door(i, j, heightClass)
+            elif objectNature == 'window':
+                self.window(i, j, heightClass)
+            elif objectNature == "bathtub5":
+                self.bathtub5(i, j, heightClass)
 
 
 class Pin:
