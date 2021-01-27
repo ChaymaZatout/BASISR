@@ -5,39 +5,37 @@ Contact : _
 Time    : 09/01/21 05:49 م
 Desc:
 """
-import open3d as o3d
 import numpy as np
+from simulator import BASISR
+import open3d as o3d
+import time
 
+if __name__ == '__main__':
+    # Read data:
+    segments = np.load("_in/segments.npy", allow_pickle=True)
 
-def create_transform_matrix_from_z(z):
-    """ Return transform 4x4 transformation matrix given a Z value """
-    result = np.identity(4)
-    result[2, 3] = z  # Change the z
+    # init visualizer:
+    vis = o3d.visualization.Visualizer()
+    vis.create_window("BASSAR")
+    vis.get_render_option().background_color = [0.75, 0.75, 0.75]
+    vis.get_render_option().mesh_show_back_face = True
 
-    return result
+    # create bassar:
+    small_base = 50
+    base = 250
+    height = 183.52
 
+    start = time.time()
+    basisr = BASISR(small_base, base, height)
+    vis.add_geometry(basisr.create_base([255, 255, 255]))
 
-# Create Open3d visualization window
-vis = o3d.visualization.Visualizer()
-vis.create_window()
-
-# create sphere geometry
-sphere1 = o3d.create_mesh_sphere()
-vis.add_geometry(sphere1)
-
-
-prev_tf = None
-for curr_z in np.arange(0.5, 15.0, 0.005):
-    # return sphere1 to original position (0,0,0)
-    if prev_tf is not None:
-        sphere1.transform(np.linalg.inv(prev_tf))
-
-    # transform bazed on curr_z tf
-    curr_tf = create_transform_matrix_from_z(curr_z)
-    sphere1.transform(curr_tf)
-
-    prev_tf = curr_tf
-
-    vis.update_geometry()
-    vis.poll_events()
-    vis.update_renderer()
+    # cylinders:
+    basisr.map_segments(segments)
+    basisr.update_pinsClolor()
+    pins = basisr.create_pins()
+    for p in pins:
+        vis.add_geometry(p)
+    print("__time__="+str(time.time()-start)+"s.")
+    # visualize:
+    vis.run()
+    vis.destroy_window()
