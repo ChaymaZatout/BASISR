@@ -46,7 +46,6 @@ class BASISR:
     def create_pins(self):
         cylinders = []
         h, w = self.pins.shape[:2]
-        print(self.pins[0][0])
 
         for i in range(w):
             for j in range(h):
