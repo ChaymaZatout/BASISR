@@ -27,15 +27,25 @@ if __name__ == '__main__':
 
     start = time.time()
     basisr = BASISR(small_base, base, height)
+    print("Creating bassar __time__: "+str(time.time()-start)+" s.")
+    start = time.time()
     vis.add_geometry(basisr.create_base([255, 255, 255]))
+    print("Adding bassar as geometry __time__: " + str(time.time()-start) + " s.")
 
     # cylinders:
+    start = time.time()
     basisr.map_segments(segments)
+    print("Mapping segments __time__: " + str(time.time()-start) + " s.")
+    start = time.time()
     basisr.update_pinsClolor()
+    print("Updating colors __time__: " + str(time.time()-start) + " s.")
+    start = time.time()
     pins = basisr.create_pins()
+    print("Creating pins __time__: " + str(time.time()-start) + " s.")
+    start = time.time()
     for p in pins:
         vis.add_geometry(p)
-    print("__time__="+str(time.time()-start)+"s.")
+    print("Adding geometry __time__: " + str(time.time()-start) + " s.")
     # visualize:
     vis.run()
     vis.destroy_window()
