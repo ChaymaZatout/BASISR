@@ -13,6 +13,11 @@ import preprocessing
 
 
 class BASISR:
+    colors_dict = {0: [0.85, 0.85, 0.85],
+                   1: [0, 1, 0],
+                   2: [0, 1, 0],
+                   3: [1, 1, 0],
+                   4: [1, 0, 0]}
 
     def __init__(self, small_base, base, height, trX=3, trZ=3, pinRadius=1, pinInitHeight=1, cell=5, diffH=2):
         self.small_base = small_base
@@ -27,7 +32,10 @@ class BASISR:
 
         self.n_lines = int((self.height) / self.trZ)
         self.n_cols = int((self.base) / self.trX)
-        self.pins = BASISR.init_pins(self)
+        self.xLocation = -self.base / 2 + self.pinRadius
+        self.zLocation = -self.height + self.pinRadius
+        self.pins = BASISR.create_pins(self)
+        self.init_y = np.copy(np.asarray(self.pins[int(self.n_lines / 2)][int(self.n_cols / 2)].vertices)[:, 1])
 
     ####################################################################################################################
     #                                            INITIALIZATION
@@ -38,59 +46,55 @@ class BASISR:
         mesh = [[0, 1, 2], [0, 2, 3]]
 
         basisr = o3d.geometry.TriangleMesh()
-        basisr.vertices = o3d.Vector3dVector(points)
-        basisr.triangles = o3d.Vector3iVector(mesh)
+        basisr.vertices = o3d.utility.Vector3dVector(points)
+        basisr.triangles = o3d.utility.Vector3iVector(mesh)
         basisr.paint_uniform_color([_ / 255 for _ in rgb_color])
         return basisr
 
     def create_pins(self):
-        cylinders = []
-        h, w = self.pins.shape[:2]
-
+        h, w = self.n_lines, self.n_cols
+        cylinders = np.empty((h, w), object)
         for i in range(w):
             for j in range(h):
-                pin = self.pins[j][i]
-                if pin.is_active:
-                    cylinder = o3d.geometry.create_mesh_cylinder(radius=self.pinRadius,
-                                                                 height=pin.height)
-                    cylinder.translate(np.asarray([pin.xyz[0], pin.height / 2, pin.xyz[2]], dtype=float))
-                    cylinder.rotate(BASISR.rotationMatrixToEulerAngles(
+                x = self.xLocation + i * self.trX
+                z = self.zLocation + j * self.trZ
+                if BASISR.is_in(self, x, z):
+                    cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=self.pinRadius,
+                                                                         height=self.pinInitHeight + self.diffH * 0)
+                    cylinder.translate(np.asarray(
+                        [BASISR.compute_x(self, i), (self.pinInitHeight + self.diffH * 0) / 2,
+                         BASISR.compute_z(self, j)], dtype=float))
+                    cylinder.rotate(
                         np.asarray([[1, 0, 0], [0, cos(pi / 2), -sin(pi / 2)], [0, sin(pi / 2), cos(pi / 2)]],
-                                   dtype=float)))
-                    cylinder.paint_uniform_color(pin.color)
-                    cylinders.append(cylinder)
+                                   dtype=float))
+                    cylinder.paint_uniform_color(BASISR.colors_dict[0])
+                    cylinders[j][i] = cylinder
+                else:
+                    cylinders[j][i] = None
         return cylinders
 
-    @staticmethod
-    def init_pins(self):
-        xLocation = -self.base / 2 + self.pinRadius
-        zLocation = -self.height + self.pinRadius
-
-        pins = np.empty((self.n_lines, self.n_cols), dtype=object)
-        h, w = pins.shape[:2]
-        for i in range(w):
-            for j in range(h):
-                x = xLocation + i * self.trX
-                z = zLocation + j * self.trZ
-                if BASISR.is_in(self, x, z):
-                    pins[j][i] = Pin([x, 0, z], self.pinInitHeight, is_active=True)
-                else:
-                    pins[j][i] = Pin([x, 0, z], self.pinInitHeight, is_active=False)
-        return pins
-
-    def update_pinsClolor(self):
+    def update_pins(self):
+        import random
         h, w = self.pins.shape[:2]
-        for i in range(w):
-            for j in range(h):
-                if self.pins[j][i].is_active:
-                    # compute height class to change colors:
-                    classe = (self.pins[j][i].height - self.pinInitHeight) / self.diffH
-                    if classe == 2 or classe == 1:
-                        self.pins[j][i].color = [0, 1, 0]
-                    elif classe == 3:
-                        self.pins[j][i].color = [1, 1, 0]
-                    elif classe == 4:
-                        self.pins[j][i].color = [1, 0, 0]
+        for j in range(h):
+            for i in range(w):
+                if self.pins[j][i] is not None:
+                    cls = random.randint(1, 4)
+                    self.update_pin(i, j, cls)
+
+    def update_pin(self, x, y, h):
+        nparray = np.asarray(self.pins[y][x].vertices)
+        nparray[:, 1] = self.init_y * h * self.diffH
+        self.pins[y][x].vertices = o3d.utility.Vector3dVector(nparray)
+        self.pins[y][x].paint_uniform_color(BASISR.colors_dict[h])
+
+    @staticmethod
+    def compute_x(self, x):
+        return self.xLocation + x * self.trX
+
+    @staticmethod
+    def compute_z(self, z):
+        return self.zLocation + z * self.trZ
 
     @staticmethod
     def is_in(self, x, z):
