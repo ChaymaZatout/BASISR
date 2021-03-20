@@ -37,14 +37,9 @@ if __name__ == '__main__':
     basisr.map_segments(segments)
     print("Mapping segments __time__: " + str(time.time()-start) + " s.")
     start = time.time()
-    basisr.update_pinsClolor()
-    print("Updating colors __time__: " + str(time.time()-start) + " s.")
-    start = time.time()
-    pins = basisr.create_pins()
-    print("Creating pins __time__: " + str(time.time()-start) + " s.")
-    start = time.time()
-    for p in pins:
-        vis.add_geometry(p)
+    for p in basisr.pins.flatten():
+        if p is not None:
+            vis.add_geometry(p)
     print("Adding geometry __time__: " + str(time.time()-start) + " s.")
     # visualize:
     vis.run()
