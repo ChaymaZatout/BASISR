@@ -220,19 +220,17 @@ class BASISR:
     #                                            UPDATE
     ####################################################################################################################
 
-    def update_point(self, x, z, height, color=None):
+    def update_point(self, x, z, height):
         i = int(self.n_cols / 2) + int(x / self.trX) if self.n_cols % 2 == 0 else int(
             self.n_cols / 2) + 1 + int(x / self.trX)
         j = self.n_lines + int(z / self.trZ)
 
-        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != -1 and self.pins[j][
-            i].height < self.pinInitHeight + self.diffH:
-            self.pins[j][i].height = height
-            self.pins[j][i].color = [0, 0, 1] if color is None else color
+        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != None:
+            self.update_pin(i, j, height)
 
     def update_pcd(self, pcd, height=None):
         if height is None:
-            height = self.pinInitHeight + self.diffH
+            height = 0
         for p in pcd:
             self.update_point(p[0], p[2], height)
 
@@ -242,9 +240,9 @@ class BASISR:
 
     def map_segment(self, segment):
         pcd = preprocessing.map_pcd(segment.pcd)
-        heightClass = self.pinInitHeight + self.diffH * (segment.height_class(1200, 1800) + 1)
+        heightClass = (segment.height_class(1200, 1800) + 1)
         if segment.classe is not None:
-            self.update_pcd(pcd)
+            self.update_pcd(pcd, 1)
             centeroid = segment.centroid()
             centeroid = preprocessing.map_point(centeroid)
             self.update_centroid(centeroid[0], centeroid[2], heightClass, segment.classe)
@@ -255,8 +253,7 @@ class BASISR:
         i = int(self.n_cols / 2) + int(x / self.trX) if self.n_cols % 2 == 0 else int(
             self.n_cols / 2) + 1 + int(x / self.trX)
         j = self.n_lines + int(z / self.trZ)
-        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != -1 and self.pins[j][
-            i].height < heightClass:
+        if (0 < i < self.n_cols) and (0 < j < self.n_lines) and self.pins[j][i] != None:
             if objectNature == 'chair':
                 self.chair(i, j, heightClass)
             elif objectNature == 'table':
@@ -273,17 +270,6 @@ class BASISR:
                 self.window(i, j, heightClass)
             elif objectNature == "bathtub5":
                 self.bathtub5(i, j, heightClass)
-
-
-class Pin:
-    def __init__(self, xyz, height, is_active=False, is_centeroid=False, color=None):
-        self.xyz = xyz
-        self.is_active = is_active
-        self.height = height
-        self.is_centeroid = is_centeroid
-        if color is None:
-            self.color = [0.85, 0.85, 0.85]
-
 
 if __name__ == '__main__':
     import time
