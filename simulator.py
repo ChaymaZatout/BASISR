@@ -73,14 +73,13 @@ class BASISR:
                     cylinders[j][i] = None
         return cylinders
 
-    def update_pins(self):
+    def update_pins(self, heights):
         import random
         h, w = self.pins.shape[:2]
         for j in range(h):
             for i in range(w):
                 if self.pins[j][i] is not None:
-                    cls = random.randint(1, 4)
-                    self.update_pin(i, j, cls)
+                    self.update_pin(i, j, heights[j][i])
 
     def update_pin(self, x, y, h):
         nparray = np.asarray(self.pins[y][x].vertices)
@@ -124,150 +123,98 @@ class BASISR:
     ####################################################################################################################
     def chair(self, centerX, centerZ, height):
         for i in range(centerX - int(self.cell / 2), centerX + int(self.cell / 2) + 1):
-            self.pins[centerZ][i].height = height
-            self.pins[centerZ][i].is_active = True
-            self.pins[centerZ][i].is_centeroid = True
+            self.update_pin(i, centerZ, height)
 
         for i in range(centerZ - int(self.cell / 2), centerZ + int(self.cell / 2) + 1):
-            self.pins[i][centerX - int(self.cell / 2)].height = height
-            self.pins[i][centerX - int(self.cell / 2)].is_active = True
-            self.pins[i][centerX - int(self.cell / 2)].is_centeroid = True
+            self.update_pin(centerX - int(self.cell / 2), i, height)
 
         for i in range(centerZ, centerZ + int(self.cell / 2) + 1):
-            self.pins[i][centerX + int(self.cell / 2)].height = height
-            self.pins[i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.update_pin(centerX + int(self.cell / 2), i, height)
 
     def table(self, centerX, centerZ, height):
         for i in range(centerX - int(self.cell / 2), centerX + int(self.cell / 2) + 1):
-            self.pins[centerZ][i].height = height
-            self.pins[centerZ][i].is_active = True
-            self.pins[centerZ][i].is_centeroid = True
+            self.update_pin(i, centerZ, height)
 
         for i in range(centerZ, centerZ + int(self.cell / 2) + 1):
-            self.pins[i][centerX + int(self.cell / 2)].height = height
-            self.pins[i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[i][centerX + int(self.cell / 2)].is_centeroid = True
-            self.pins[i][centerX - int(self.cell / 2)].height = height
-            self.pins[i][centerX - int(self.cell / 2)].is_active = True
-            self.pins[i][centerX - int(self.cell / 2)].is_centeroid = True
+            self.update_pin(centerX + int(self.cell / 2), i, height)
+            self.update_pin(centerX - int(self.cell / 2), i, height)
 
     def dresser(self, centerX, centerZ, height):
         for i in range(self.cell):
-            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # haut
-            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
-            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # bas
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].height = height  # cote gauche
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droit
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX].height = height  # ligne central
-            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_centeroid = True
+            # haut
+            self.update_pin(centerX - int(self.cell / 2) + i, centerZ - int(self.cell / 2), height)
+            # bas
+            self.update_pin(centerX - int(self.cell / 2) + i, centerZ + int(self.cell / 2), height)
+
+            # cote gauche
+            self.update_pin(centerX - int(self.cell / 2), centerZ - int(self.cell / 2) + i, height)
+
+            # cote droit
+            self.update_pin(centerX + int(self.cell / 2), centerZ - int(self.cell / 2) + i, height)
+
+            # ligne central
+            self.update_pin(centerX, centerZ - int(self.cell / 2) + i, height)
 
     def window(self, centerX, centerZ, height):
         for i in range(self.cell):
-            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # haut
-            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
-            self.pins[centerZ - int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height  # bas
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].height = height  # cote gauche
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].height = height  # cote droit
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX].height = height  # ligne central: vetrical
-            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX].is_centeroid = True
-            self.pins[centerZ][centerX - int(self.cell / 2) + i].height = height  # bas
-            self.pins[centerZ][centerX - int(self.cell / 2) + i].is_active = True
-            self.pins[centerZ][centerX - int(self.cell / 2) + i].is_centeroid = True
+            # haut
+            self.update_pin(centerX - int(self.cell / 2) + i, centerZ - int(self.cell / 2), height)
 
-    def door(self, centerX, centerZ, heigh):
+            # bas
+            self.update_pin(centerX - int(self.cell / 2) + i, centerZ + int(self.cell / 2), height)
+
+            # cote gauche
+            self.update_pin(centerX - int(self.cell / 2), centerZ - int(self.cell / 2) + i, height)
+
+            # cote droit
+            self.update_pin(centerX + int(self.cell / 2), centerZ - int(self.cell / 2) + i, height)
+
+            # ligne central: vetrical
+            self.update_pin(centerX, centerZ - int(self.cell / 2) + i, height)
+
+            # bas
+            self.update_pin(centerX - int(self.cell / 2) + i, centerZ, height)
+
+
+    def door(self, centerX, centerZ, height):
         for i in range(centerX - int(self.cell / 3), centerX + int(self.cell / 3) + 1):
-            self.pins[centerZ - int(self.cell / 2)][i].height = heigh
-            self.pins[centerZ - int(self.cell / 2)][i].is_active = True
-            self.pins[centerZ - int(self.cell / 2)][i].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2)][i].height = heigh
-            self.pins[centerZ + int(self.cell / 2)][i].is_active = True
-            self.pins[centerZ + int(self.cell / 2)][i].is_centeroid = True
+            self.update_pin(i, centerZ - int(self.cell / 2), height)
+            self.update_pin(i, centerZ + int(self.cell / 2), height)
 
         for i in range(self.cell):
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 3)].height = heigh
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 3)].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX - int(self.cell / 3)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 3)].height = heigh
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 3)].is_active = True
-            self.pins[centerZ - int(self.cell / 2) + i][centerX + int(self.cell / 3)].is_centeroid = True
+            self.update_pin(centerX - int(self.cell / 3), centerZ - int(self.cell / 2) + i, height)
+            self.update_pin(centerX + int(self.cell / 3), centerZ - int(self.cell / 2) + i, height)
+
 
     def upstairs(self, centerX, centerZ, height):
         for i in range(int(self.cell / 2)):
-            self.pins[centerZ][centerX + i].height = height
-            self.pins[centerZ][centerX + i].is_active = True
-            self.pins[centerZ][centerX + i].is_centeroid = True
-            self.pins[centerZ + i][centerX].height = height
-            self.pins[centerZ + i][centerX].is_active = True
-            self.pins[centerZ + i][centerX].is_centeroid = True
-            self.pins[centerZ - i][centerX + int(self.cell / 2)].height = height
-            self.pins[centerZ - i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[centerZ - i][centerX + int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - i].height = height
-            self.pins[centerZ + int(self.cell / 2)][centerX - i].is_active = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - i].is_centeroid = True
+            self.update_pin(centerX + i, centerZ, height)
+            self.update_pin(centerX, centerZ + i, height)
+            self.update_pin(centerX + int(self.cell / 2), centerZ - i, height)
+            self.update_pin(centerX - i, centerZ + int(self.cell / 2), height)
 
     def downstairs(self, centerX, centerZ, height):
         for i in range(int(self.cell / 2)):
-            self.pins[centerZ][centerX + i].height = height
-            self.pins[centerZ][centerX + i].is_active = True
-            self.pins[centerZ][centerX + i].is_centeroid = True
-            self.pins[centerZ - i][centerX].height = height
-            self.pins[centerZ - i][centerX].is_active = True
-            self.pins[centerZ - i][centerX].is_centeroid = True
-            self.pins[centerZ + i][centerX + int(self.cell / 2)].height = height
-            self.pins[centerZ + i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[centerZ + i][centerX + int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ - int(self.cell / 2)][centerX - i].height = height
-            self.pins[centerZ - int(self.cell / 2)][centerX - i].is_active = True
-            self.pins[centerZ - int(self.cell / 2)][centerX - i].is_centeroid = True
+            self.update_pin(centerX + i, centerZ, height)
+            self.update_pin(centerX, centerZ - i, height)
+            self.update_pin(centerX + int(self.cell / 2), centerZ + i, height)
+            self.update_pin(centerX - i, centerZ - int(self.cell / 2), height)
 
     def bathtub5(self, centerX, centerZ, height):
         for i in range(self.cell):
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].height = height
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_active = True
-            self.pins[centerZ + int(self.cell / 2)][centerX - int(self.cell / 2) + i].is_centeroid = True
+            self.update_pin(centerX - int(self.cell / 2) + i, centerZ + int(self.cell / 2), height)
 
         for i in range(int(self.cell * 2 / 3)):
-            self.pins[centerZ + int(self.cell / 2) - i][centerX - int(self.cell / 2)].height = height
-            self.pins[centerZ + int(self.cell / 2) - i][centerX - int(self.cell / 2)].is_active = True
-            self.pins[centerZ + int(self.cell / 2) - i][centerX - int(self.cell / 2)].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2) - i][centerX + int(self.cell / 2)].height = height
-            self.pins[centerZ + int(self.cell / 2) - i][centerX + int(self.cell / 2)].is_active = True
-            self.pins[centerZ + int(self.cell / 2) - i][centerX + int(self.cell / 2)].is_centeroid = True
+            self.update_pin(centerX - int(self.cell / 2), centerZ + int(self.cell / 2) - i, height)
+
+            self.update_pin(centerX + int(self.cell / 2), centerZ + int(self.cell / 2) - i, height)
 
         for i in range(int(self.cell / 3)):
-            self.pins[centerZ][centerX - int(self.cell / 6) + i].height = height
-            self.pins[centerZ][centerX - int(self.cell / 6) + i].is_active = True
-            self.pins[centerZ][centerX - int(self.cell / 6) + i].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
-                centerX + int(self.cell / 3) + i].height = height
-            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
-                centerX + int(self.cell / 3) + i].is_active = True
-            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
-                centerX + int(self.cell / 3) + i].is_centeroid = True
-            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
-                centerX - int(self.cell / 3) - i].height = height
-            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
-                centerX - int(self.cell / 3) - i].is_active = True
-            self.pins[centerZ + int(self.cell / 2) - int(self.cell * 2 / 3)][
-                centerX - int(self.cell / 3) - i].is_centeroid = True
+            self.update_pin(centerX - int(self.cell / 6) + i, centerZ, height)
+
+            self.update_pin(centerX + int(self.cell / 3) + i, centerZ + int(self.cell / 2) - int(self.cell * 2 / 3), height)
+
+            self.update_pin(centerX - int(self.cell / 3) - i, centerZ + int(self.cell / 2) - int(self.cell * 2 / 3), height)
 
     ####################################################################################################################
     #                                            UPDATE
@@ -353,13 +300,22 @@ if __name__ == '__main__':
     hauteur = 183.52
     start_time = time.time()
     bassar = BASISR(petiteBase, grandeBase, hauteur)
-    vis.add_geometry(bassar.create_base([255, 255, 255]))
-
-    # pins:
-    pins = bassar.create_pins()
-    for p in pins:
-        vis.add_geometry(p)
     print('Creation and initialisation of BASISR: ' + str(time.time() - start_time) + ' seconds')
+
+    # Add geometries:
+    start_time = time.time()
+    vis.add_geometry(bassar.create_base([255, 255, 255]))
+    for j in range(bassar.n_lines):
+        for i in range(bassar.n_cols):
+            if bassar.pins[j][i] is not None:
+                vis.add_geometry(bassar.pins[j][i])
+    print('Adding geometries: ' + str(time.time() - start_time) + ' seconds')
+
+    # update geometry:
+    heights = np.random.randint(0, 5, [bassar.n_lines, bassar.n_cols])
+    start_time = time.time()
+    bassar.update_pins(heights)
+    print('Updating pins: ' + str(time.time() - start_time) + ' seconds')
 
     # show
     vis.run()
