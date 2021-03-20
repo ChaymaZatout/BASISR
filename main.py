@@ -32,15 +32,17 @@ if __name__ == '__main__':
     vis.add_geometry(basisr.create_base([255, 255, 255]))
     print("Adding bassar as geometry __time__: " + str(time.time()-start) + " s.")
 
-    # cylinders:
-    start = time.time()
-    basisr.map_segments(segments)
-    print("Mapping segments __time__: " + str(time.time()-start) + " s.")
     start = time.time()
     for p in basisr.pins.flatten():
         if p is not None:
             vis.add_geometry(p)
-    print("Adding geometry __time__: " + str(time.time()-start) + " s.")
+    print("Adding pins __time__: " + str(time.time() - start) + " s.")
+
+    # cylinders:
+    start = time.time()
+    basisr.map_segments(segments)
+    print("Mapping segments __time__: " + str(time.time()-start) + " s.")
+
     # visualize:
     vis.run()
     vis.destroy_window()
