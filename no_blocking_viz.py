@@ -1,5 +1,5 @@
 """
-Name : no_blocking_viz.py
+Name : non_blocking_viz.py
 Author : Chayma Zatout
 Contact : github.com/ChaymaZatout
 Time    : 12/03/21 01:27 م
@@ -31,7 +31,7 @@ if __name__ == '__main__':
                 vis.add_geometry(bassar.pins[j][i])
 
     while True:
-        heights = np.random.randint(0, 5, [bassar.n_lines, bassar.n_cols])
+        heights = np.random.randint(0, 4, [bassar.n_lines, bassar.n_cols])
         bassar.update_pins(heights)
         for p in bassar.pins.flatten():
             vis.update_geometry(p)
