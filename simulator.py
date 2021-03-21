@@ -14,10 +14,10 @@ import preprocessing
 
 class BASISR:
     colors_dict = {0: [0.85, 0.85, 0.85],
+                   # 1: [0, 1, 0],
                    1: [0, 1, 0],
-                   2: [0, 1, 0],
-                   3: [1, 1, 0],
-                   4: [1, 0, 0]}
+                   2: [1, 1, 0],
+                   3: [1, 0, 0]}
 
     def __init__(self, small_base, base, height, trX=3, trZ=3, pinRadius=1, pinInitHeight=1, cell=5, diffH=2):
         self.small_base = small_base
@@ -60,9 +60,9 @@ class BASISR:
                 z = self.zLocation + j * self.trZ
                 if BASISR.is_in(self, x, z):
                     cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=self.pinRadius,
-                                                                         height=self.pinInitHeight + self.diffH * 0)
+                                                                         height=self.pinInitHeight)
                     cylinder.translate(np.asarray(
-                        [BASISR.compute_x(self, i), (self.pinInitHeight + self.diffH * 0) / 2,
+                        [BASISR.compute_x(self, i), (self.pinInitHeight) / 2,
                          BASISR.compute_z(self, j)], dtype=float))
                     cylinder.rotate(
                         np.asarray([[1, 0, 0], [0, cos(pi / 2), -sin(pi / 2)], [0, sin(pi / 2), cos(pi / 2)]],
@@ -74,7 +74,6 @@ class BASISR:
         return cylinders
 
     def update_pins(self, heights):
-        import random
         h, w = self.pins.shape[:2]
         for j in range(h):
             for i in range(w):
@@ -83,7 +82,7 @@ class BASISR:
 
     def update_pin(self, x, y, h):
         nparray = np.asarray(self.pins[y][x].vertices)
-        nparray[:, 1] = self.init_y * h * self.diffH
+        nparray[:, 1] = self.init_y * h * self.diffH + self.pinInitHeight
         self.pins[y][x].vertices = o3d.utility.Vector3dVector(nparray)
         self.pins[y][x].paint_uniform_color(BASISR.colors_dict[h])
 
@@ -240,7 +239,7 @@ class BASISR:
 
     def map_segment(self, segment):
         pcd = preprocessing.map_pcd(segment.pcd)
-        heightClass = (segment.height_class(1200, 1800) + 1)
+        heightClass = (segment.height_class(1200, 1800))
         if segment.classe is not None:
             self.update_pcd(pcd, 1)
             centeroid = segment.centroid()
@@ -298,7 +297,9 @@ if __name__ == '__main__':
     print('Adding geometries: ' + str(time.time() - start_time) + ' seconds')
 
     # update geometry:
-    heights = np.random.randint(0, 5, [bassar.n_lines, bassar.n_cols])
+    start_time = time.time()
+    heights = np.random.randint(0, 4, [bassar.n_lines, bassar.n_cols])
+    print('Compute random values: ' + str(time.time() - start_time) + ' seconds')
     start_time = time.time()
     bassar.update_pins(heights)
     print('Updating pins: ' + str(time.time() - start_time) + ' seconds')
