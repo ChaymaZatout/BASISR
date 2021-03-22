@@ -95,12 +95,12 @@ class BASISR:
             for j in range(h):
                 x = self.xLocation + i * self.trX
                 z = self.zLocation + j * self.trZ
-                if BASISR.is_in(self, x, z):
+                if self.is_in(x, z):
                     cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=self.pinRadius,
                                                                          height=self.pinInitHeight)
                     cylinder.translate(np.asarray(
-                        [BASISR.compute_x(self, i), (self.pinInitHeight) / 2,
-                         BASISR.compute_z(self, j)], dtype=float))
+                        [self.compute_x(i), (self.pinInitHeight) / 2,
+                         self.compute_z(j)], dtype=float))
                     cylinder.rotate(
                         np.asarray([[1, 0, 0], [0, cos(pi / 2), -sin(pi / 2)], [0, sin(pi / 2), cos(pi / 2)]],
                                    dtype=float))
@@ -142,7 +142,6 @@ class BASISR:
         """
         return self.xLocation + x * self.trX
 
-    @staticmethod
     def compute_z(self, y):
         """
         compute the pin's location in the 3d scene along the z-axis
@@ -152,7 +151,6 @@ class BASISR:
         """
         return self.zLocation + y * self.trZ
 
-    @staticmethod
     def is_in(self, x, y):
         """
         verfy if the position is on the simulator base.
