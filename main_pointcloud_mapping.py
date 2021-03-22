@@ -33,9 +33,6 @@ if __name__ == '__main__':
     base = 250
     height = 183.52
     basisr = BASISR(small_base, base, height)
-    # to compute a point class:
-    bf = 1200 * 0.0575
-    bs = 1800 * 0.0575
 
     # add geometries:
     vis.add_geometry(basisr.create_base([255, 255, 255]))
@@ -47,17 +44,14 @@ if __name__ == '__main__':
     # construction the point cloud:
     pcd = np.array(list(sum([s.pcd for s in segments], [])))
     # get the ground height:
-    ymin = segments[2].ymin
+    ymin = segments[0].ymin
+
+    # compute heights
+    pcd[:, 1] = pcd[:, 1] - ymin
 
     # processing and mapping pcd:
     start = time.time()
-    pcd[:, 1] = pcd[:, 1] - ymin  # compute heights
-    pcd = map_pcd(pcd)  # map pcd.
-    j, i = get_indices(pcd, basisr.n_lines, basisr.n_cols, basisr.trX, basisr.trZ)
-    # compute classes:
-    h = np.zeros((basisr.n_lines, basisr.n_cols))
-    h[j, i] = np.where(pcd[:, 1] < bf, 1,
-                       np.where((pcd[:, 1] >= bf) & (pcd[:, 1] < bs), 2, np.where(pcd[:, 1] > bs, 3, 0)))
+    h = basisr.compute_from_pcd(pcd)
     print(f"Mapping  and computing __time__: {time.time() - start}")
 
     # updating pins:
