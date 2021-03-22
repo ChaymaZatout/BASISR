@@ -49,8 +49,6 @@ if __name__ == '__main__':
 
     # map segments:
     h = np.zeros((basisr.n_lines, basisr.n_cols))
-    bf = 1200 * 0.0575
-    bs = 1800 * 0.0575
 
     start = time.time()
     for s in segments:
@@ -58,11 +56,7 @@ if __name__ == '__main__':
         pcd = np.array(s.pcd)
         pcd[:, 1] = pcd[:, 1] - s.ymin
         # map:
-        pcd = map_pcd(pcd)
-        h_class = s.height_class(1200, 1800)
-        # classifiy:
-        j, i = get_indices(pcd, basisr.n_lines, basisr.n_cols, basisr.trX, basisr.trZ)
-        h[j, i] = h_class
+        h = basisr.compute_from_pcd(pcd, h, s.height_class(1200,1800))
     print(f"Mapping segments __time__: {time.time() - start} s.")
 
     start = time.time()
