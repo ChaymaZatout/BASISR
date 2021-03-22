@@ -133,6 +133,28 @@ class BASISR:
         self.pins[y][x].vertices = o3d.utility.Vector3dVector(nparray)
         self.pins[y][x].paint_uniform_color(BASISR.colors_dict[h])
 
+    def compute_from_pcd(self, pcd, heights=None, h_cls=None, bf=1200 * 0.0575, bs=1800 * 0.0575):
+        """
+        Compute the height class of each point from pcd
+        :param pcd: point cloud with the y component represents the height
+        :param heights: ndarray of heights if it's not None we update it and return it
+        :param h_cls: the height class of the pcd
+        :param bf: the lower bond of the second class
+        :param bs: the upper bond of the second class
+        :return:
+        """
+        if heights is None:
+            heights = np.zeros((self.n_lines, self.n_cols))
+        pcd = BASISR.reduce_pcd_scale(pcd)  # map pcd.
+        j, i = self.get_indices(pcd)
+        # compute classes:
+        if h_cls is None:
+            heights[j, i] = np.where(pcd[:, 1] < bf, 1,
+            np.where((pcd[:, 1] >= bf) & (pcd[:, 1] < bs), 2, np.where(pcd[:, 1] > bs, 3, 0)))
+        else:
+            heights[j, i] = h_cls
+        return heights
+
     def compute_x(self, x):
         """
         compute the pin's location in the 3d scene along the x-axis
@@ -161,6 +183,27 @@ class BASISR:
         """
         b = self.base / 2 * (-y + (800 * 0.05735)) / (self.height + (800 * 0.05735))
         return -b + self.pinRadius <= x <= b - self.pinRadius
+
+    def get_indices(self, pcd):
+        """
+        Compute the indices of each point of the point cloud
+        :param pcd: point cloud
+        :return: line and row indices of pcd points
+        """
+        i = int(self.n_cols / 2) + pcd[:, 0] / self.trX + (1 if self.n_cols % 2 == 0 else 0)
+        j = self.n_lines + pcd[:, 2] / self.trZ
+        return np.array(j, dtype=int), np.array(i, dtype=int)
+
+    @staticmethod
+    def reduce_pcd_scale(pcd):
+        """
+        Reduce the point cloud scale to be mapped on the simulator.
+        The y component have to represent the height of the point.
+        :param pcd: point cloud
+        :return: point cloud with reduced scale
+        """
+        pcd_npy = np.array(pcd)
+        return (pcd_npy - np.array([0, 0, 800])) * np.array([25 / 435, 0.0575, -183.52 / 3200])
 
     # source: https://www.learnopencv.com/rotation-matrix-to-euler-angles/
     @staticmethod
