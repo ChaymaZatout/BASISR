@@ -81,6 +81,7 @@ class BASISR:
         basisr = o3d.geometry.TriangleMesh()
         basisr.vertices = o3d.utility.Vector3dVector(points)
         basisr.triangles = o3d.utility.Vector3iVector(mesh)
+        basisr.compute_vertex_normals()
         basisr.paint_uniform_color([_ / 255 for _ in rgb_color])
         return basisr
 
@@ -104,6 +105,7 @@ class BASISR:
                     cylinder.rotate(
                         np.asarray([[1, 0, 0], [0, cos(pi / 2), -sin(pi / 2)], [0, sin(pi / 2), cos(pi / 2)]],
                                    dtype=float))
+                    cylinder.compute_vertex_normals()
                     cylinder.paint_uniform_color(BASISR.colors_dict[0])
                     cylinders[j][i] = cylinder
                 else:
@@ -463,7 +465,7 @@ if __name__ == '__main__':
     vis.create_window("BASSAR")
     vis.get_render_option().background_color = [0.75, 0.75, 0.75]
     vis.get_render_option().mesh_show_back_face = True
-
+    # vis.add_geometry(o3d.geometry.TriangleMesh.create_coordinate_frame(size=100,origin=[0, 0, 0]))
     # create bassar:
     petiteBase = 50
     grandeBase = 250
